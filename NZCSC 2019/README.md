@@ -44,7 +44,7 @@ function login(event) {
 From this we can see that a better authentication method is to be added, but thankfully for us it hasen't yet. The script shows that if the xhr request returns yes then the browser navigates to done.php. We can instead of entering the correct login details just insert this url instead.
 This gives us the successful login page and the first flag.
 
-![First Flag](flag.png)
+![First Flag](flag1.png)
 
 ## Challenge 2
 
