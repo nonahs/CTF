@@ -107,7 +107,7 @@ I also try binwalk and don't find any hidden files in the bonus file and a hexdu
 
 Uploading to virustotal and a malware analysis site does not return any hits so lets try run the file in our sandbox.
 
-![File output](filerun.png)
+![File output](filerun.PNG)
  
 Looks like it doesn't execute for us so I research a bit more about the file type. From what I can find is the SVR2 files were developed for the UNIX System V OS. SVR2 stands for System Five Release 2, apparently a common system running this version of UNIX was the PDP-11 and it's successor the VAX. I manage to find some emulators for these systems and try load the file but did not get any better output. Finally I try a disassembler for these two systems, no entry point can be found and once again don't get any answers from it.
 
