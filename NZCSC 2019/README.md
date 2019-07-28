@@ -134,7 +134,7 @@ I'm not sure if the key B3e$ was hidden somewhere else or we were just meant to 
 
 From the bonus challenge I learnt a lot about working with rare filetypes and how well xor cracking tools can work. If I had a similar challenge again I would know what tools to best use instead of trying to work with gibberish file just because the files signature looks correct.
 
-### Challenge 3
+## Challenge 3
 
 >Welcome to the IOT Web Terminal! Due to the limitations of the device, only a few commands can be run and only a single argument can be entered for each command.
 >Feel free to poke around!
@@ -155,7 +155,7 @@ We get a few more files now, . is just the current directory and .. is the paren
 
 ![Third flag](flag3.PNG)
 
-### Challenge 4
+## Challenge 4
 
 >We are given an image of our next flag except it has been hidden with a black brush.
 
