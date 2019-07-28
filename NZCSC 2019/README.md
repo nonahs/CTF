@@ -44,7 +44,7 @@ function login(event) {
 From this we can see that a better authentication method is to be added, but thankfully for us it hasen't yet. The script shows that if the xhr request returns yes then the browser navigates to done.php. We can instead of entering the correct login details just insert this url instead.
 This gives us the successful login page and the first flag.
 
-![First Flag](flag1.png)
+![First Flag](flag.png)
 
 ## Challenge 2
 
@@ -107,7 +107,7 @@ I also try binwalk and don't find any hidden files in the bonus file and a hexdu
 
 Uploading to virustotal and a malware analysis site does not return any hits so lets try run the file in our sandbox.
 
-![File output](filerun.PNG)
+![File output](filerun.png)
  
 Looks like it doesn't execute for us so I research a bit more about the file type. From what I can find is the SVR2 files were developed for the UNIX System V OS. SVR2 stands for System Five Release 2, apparently a common system running this version of UNIX was the PDP-11 and it's successor the VAX. I manage to find some emulators for these systems and try load the file but did not get any better output. Finally I try a disassembler for these two systems, no entry point can be found and once again don't get any answers from it.
 
@@ -141,3 +141,24 @@ I decided to decode the original file again with xortool, this time I use a key 
 I'm not sure if the key B3e$ was hidden somewhere else or we were just meant to crack it since it's only 4 character long, but I couldn't find any hints alluding to bees or anything similar elsewhere.
 
 From the bonus challenge I learnt a lot about working with rare filetypes and how well xor cracking tools can work. If I had a similar challenge again I would know what tools to best use instead of trying to work with gibberish file just because the files signature looks correct.
+
+### Challenge 3
+
+>Welcome to the IOT Web Terminal! Due to the limitations of the device, only a few commands can be run and only a single argument can be entered for each command.
+>Feel free to poke around!
+
+A single input box is given to execute commands from. Checking the pages source I can see it is a small php script to validate the input. I can also see that there is a regex that checks for ls, file, cat, head, tail. There is also a help command but that just gives us the list of commands just discovered. I have a look what files are available with ls. We get back 6 files
+
+![List of files](ls.PNG)
+
+There is a file called flag so I have a look at that with cat flag and get
+
+![Flag file](cat_flag.PNG)
+
+Well I guess it is a flag, but not the one we are looking for. notflag is also as it says, not the flag. The other files are just the files for the actual webpage we are doing the challenge on and don't seem to be of much more use. The file command also does not seem to work at all and head and tail are not much use over cat since we can only use one argument. I quickly think of something else to try, using `ls -a` which will display all files including hidden files (files starting with a .). I use `ls -al` to get a list of all files and the l option to provide more details about each file.
+
+![Result from ls -al](ls-al.PNG)
+
+We get a few more files now, . is just the current directory and .. is the parent directory. Usually you would use cd .. to change directory to the parent directory. But there is also a ... file too which is actually another directory. Since we don't have a cd command available we can use ``ls ...` to show us what is in that directory. It reveals a flag file, all we have to do now is use `cat .../flag` to see whats in the file and get the next flag.
+
+![Third flag](flag3.PNG)
