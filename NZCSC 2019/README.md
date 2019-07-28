@@ -44,7 +44,7 @@ function login(event) {
 From this we can see that a better authentication method is to be added, but thankfully for us it hasen't yet. The script shows that if the xhr request returns yes then the browser navigates to done.php. We can instead of entering the correct login details just insert this url instead.
 This gives us the successful login page and the first flag.
 
-![First Flag](flag.png)
+![First Flag](flag1.png)
 
 ## Challenge 2
 
@@ -95,25 +95,17 @@ When we inspect the pages source we see another base64 string comented out at th
 <!-- fnQXc211KwwAJ2B2PyoXUyo9 -->
 ```
 
-XORing this with our key gives us GET ./e51d35ed.bin
-Downloading this file gives us a 50Kb binary file which the linux file command tells us is an SVR2 pure executable (Amdahl-UTS) not stripped - version 609637140
-I try using strings to look for flag and similar strings but don't get any showing up.
+XORing this with our key gives me GET ./e51d35ed.bin
+Downloading this file gives me a 50Kb binary file which the linux file command tells me is an SVR2 pure executable (Amdahl-UTS) not stripped - version 609637140
+I try using `strings e51d35ed.bin | grep flag` to look for flag and similar strings but don't get any showing up. I also try `binwalk` and don't find any hidden files in the bonus file and a hexdump doesn't show up anything immediatly apparent either. Uploading to virustotal and a malware analysis site does not return any hits so I'll try to run the file in my sandbox.
 
-```
-strings e51d35ed.bin | grep flag
-```
-
-I also try binwalk and don't find any hidden files in the bonus file and a hexdump doesn't show up anything immediatly apparent either.
-
-Uploading to virustotal and a malware analysis site does not return any hits so lets try run the file in our sandbox.
-
-![File output](filerun.png)
+![File output](filerun.PNG)
  
-Looks like it doesn't execute for us so I research a bit more about the file type. From what I can find is the SVR2 files were developed for the UNIX System V OS. SVR2 stands for System Five Release 2, apparently a common system running this version of UNIX was the PDP-11 and it's successor the VAX. I manage to find some emulators for these systems and try load the file but did not get any better output. Finally I try a disassembler for these two systems, no entry point can be found and once again don't get any answers from it.
+Looks like it doesn't execute for me so I research a bit more about the file type. From what I can find is the SVR2 files were developed for the UNIX System V OS. SVR2 stands for System Five Release 2, apparently a common system running this version of UNIX was the PDP-11 and it's successor the VAX. I manage to find some emulators for these systems and try load the file but did not get any better output. Finally I try a disassembler for these two systems, no entry point can be found and once again don't get any answers from it.
 
-Coming back to the challenge I decided since the main challenge 2 was using a XOR cipher perhaps the file is encrypted and the magic number at the start of the file is just a coincidence of this. Having a look at the hexdump again does look like it could be the result of XORed plaintext. Seeing this I XOR the entire file with our previous key 91CSCZN and once again get gibberish. File now reports only binary data and I don't find any strings in the file that could help us. Perhaps the file is XOR with a different key then? Doing some research I come across a XOR cracker called  [Xortool](https://www.aldeid.com/wiki/Xortool).
+Coming back to the challenge I decided since the main challenge 2 was using a XOR cipher perhaps the file is encrypted and the magic number at the start of the file is just a coincidence of this. Having a look at the hexdump again does look like it could be the result of XORed plaintext. Seeing this I XOR the entire file with our previous key 91CSCZN and once again get gibberish. File now reports only binary data and I don't find any strings in the file that could help me. Perhaps the file is XOR with a different key then? Doing some research I come across a XOR cracker called  [Xortool](https://www.aldeid.com/wiki/Xortool).
 
-We run xortool and give it the original version of the file to analyse. It come back telling us that the most common key length is 4 followed closely by 12. Since the length of the flags in this competition are 12 characters lets go with with that. Now we have a good guess for the length of the key we just need to supply what we think is the most frequent byte in the file. I've gone with the suggested example of 00 which usually would be the most common byte in binaries.
+We run xortool and give it the original version of the file to analyse. It come back telling me that the most common key length is 4 followed closely by 12. Since the length of the flags in this competition are 12 characters lets go with with that. Now we have a good guess for the length of the key we just need to supply what we think is the most frequent byte in the file. I've gone with the suggested example of 00 which usually would be the most common byte in binaries.
 
 ```
 ./xortool.py test.txt.xor -l 12 -c 00
@@ -147,11 +139,11 @@ From the bonus challenge I learnt a lot about working with rare filetypes and ho
 >Welcome to the IOT Web Terminal! Due to the limitations of the device, only a few commands can be run and only a single argument can be entered for each command.
 >Feel free to poke around!
 
-A single input box is given to execute commands from. Checking the pages source I can see it is a small php script to validate the input. I can also see that there is a regex that checks for ls, file, cat, head, tail. There is also a help command but that just gives us the list of commands just discovered. I have a look what files are available with ls. We get back 6 files
+A single input box is given to execute commands from. Checking the pages source I can see it is a small php script to validate the input. I can also see that there is a regex that checks for ls, file, cat, head, tail. There is also a help command but that just gives us the list of commands just discovered. I have a look what files are available with `ls`. We get back 6 files
 
 ![List of files](ls.PNG)
 
-There is a file called flag so I have a look at that with cat flag and get
+There is a file called flag so I have a look at that with `cat flag` and get
 
 ![Flag file](cat_flag.PNG)
 
@@ -159,6 +151,32 @@ Well I guess it is a flag, but not the one we are looking for. notflag is also a
 
 ![Result from ls -al](ls-al.PNG)
 
-We get a few more files now, . is just the current directory and .. is the parent directory. Usually you would use cd .. to change directory to the parent directory. But there is also a ... file too which is actually another directory. Since we don't have a cd command available we can use ``ls ...` to show us what is in that directory. It reveals a flag file, all we have to do now is use `cat .../flag` to see whats in the file and get the next flag.
+We get a few more files now, . is just the current directory and .. is the parent directory. Usually you would use cd .. to change directory to the parent directory. But there is also a ... file too which is actually another directory. Since we don't have a cd command available we can use `ls ...` to show us what is in that directory. It reveals a flag file, all we have to do now is use `cat .../flag` to see whats in the file and get the next flag.
 
 ![Third flag](flag3.PNG)
+
+### Challenge 4
+
+>We are given an image of our next flag except it has been hidden with a black brush.
+
+![Fourth flag hidden](hiddenflag4.PNG)
+
+Downloading the image and having a look at it with `file` does not reveal anything unexpected. Using `binwalk` to check for hidden files also does not give us any answers. I then decided to check the exif data in the image and this is what I get.
+
+![Fourth flag found in exif data](flag4.PNG)
+
+In the image history is the next flag.
+
+## Challenge 4 Bonus Flag
+
+>The bonus flag once again proves to be a greater challenge than the original flag was.
+
+I didn't find anything else hidden in the original flag file so I have a look at the pages source. Initially I didn't find anything that stands out but after looking at the address for the favicon I notice that it is `.crow.ico` when on all the other pages it is only `crow.ico`. I download both files and immediatly notice that the .crow.ico file is a about 1KB larger than the normal one, this must be where the bonus flag is hidden. Binwalk shows us a PNG file and a Zlib compressed data file, Using binwalk to extract the hidden files I get given the Zlib compressed file only. Decompressing this file just gives me a unknown file which is just reported as data by the file command, I can't seem to find anything else in this file.
+
+I then decided to compare the normal favicon and the larged one side by side with a hexdump. I notice where the files start to differ and find at address `0x25DE` there is data which is not in the original file at all. There is 1006 bytes of extra data before files match up again. I look up how to extract parts of a file and find using the `dd` command will be best to do it. Using `dd skip=9694 count=1008 if=crow.ico of=out bs=1` I manage to extract the hidden file, I had to use a block size of 1 or else dd was unable to skip to the correct offset. Checking the extracted file tells us that it is a greyscale PNG file, opening it gives us the bonus flag.
+
+![Fourth Bonus Flag](bonus_out.PNG)
+
+I'm curious why binwalk didn't originally extract the file and only gave me the compressed file so I research a bit more. I find that using binwalk with the `-e` option to extract hidden files only extracts certain filetypes and I have to manually tell it to extract a png file. Using `binwalk --dd='png' crow.ico` I get binwalk to extract the image and give us the bonus flag. I missed this the first time I used binwalk as I was presuming the PNG file that it showed was the original favicon image since it didn't extract it by default. Next time I will know to tell binwalk to extract all files and that just using the `-e` option does not do that.
+
+![Fourth Bonus Flag extracted with binwalk](bonus4.PNG)
