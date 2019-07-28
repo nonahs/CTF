@@ -202,7 +202,7 @@ Opening the image with VirtualBox the name of the systems is `NZCSC R0C6 TCL`. W
 
 ![Validation failed](failed.PNG)
 
-I try run binwalk, but it is not included in the provided system and we are unable to install new packages either. I decide to check what strings there are in the program. I get a large list so I pipe the output to grep so it can look for the flag `strings validate | grep flag`. I get a list of about 80 different falgs so I redirect the output from grep to a file `strings validate | grep flag > flags.txt`. I then remove any text that is not in our correct flag format so we are only left with a text file of 12 character flags. Once this is done I write a quick script to go through the file line by line and redirect the output as input to the validate program. After a few minutes all the keys have been tried and none of them were correct so I'll need to take a different approach.
+I try run binwalk, but it is not included in the provided system and we are unable to install new packages either. I decide to check what strings there are in the program. I get a large list so I pipe the output to grep so it can look for the flag `strings validate | grep flag`. I get a list of about 80 different flags so I redirect the output from grep to a file `strings validate | grep flag > flags.txt`. I then remove any text that is not in our correct flag format so we are only left with a text file of 12 character flags. Once this is done I write a quick script to go through the file line by line and redirect the output as input to the validate program. After a few minutes all the keys have been tried and none of them were correct so I'll need to take a different approach.
 
 Next I check if the system has a debugger available and I find GDB is there. I open validate with gdb and check what variables are defined. GDB reports that the program has 12 defined variables, 10 of which are string arrays and one is an array of flags. Viewing the variables I get a list of the strings I saw when I ran the program but I notice a few new strings including one that it a GET request to challenge server. 
 
@@ -214,7 +214,7 @@ I enter the URL into a browser `https://nzcsc.org.nz/competition/2019/R0/6/chall
 
 Setting a breakpoint at FUNC4 does not seem to help so I decided to step through the program and when it jumps into FUNC2 we get some local variables, one is called flag and has the data `flag = 0x804c400 <flags+576> "flag:51bd3c2fdb67"`. 
 
-~[GDB FUNC2](func2.PNG)
+![GDB FUNC2](func2.PNG)
 
 This looks like its our key, I enter it and it is accepted. I decide to run the validate program with the correct flag to see what happens this time. Initally it doesn't work, then I try prefix it with flag: and we are able to validate the flag correctly.
 
