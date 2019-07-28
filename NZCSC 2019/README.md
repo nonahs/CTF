@@ -171,7 +171,7 @@ In the image history is the next flag.
 
 >The bonus flag once again proves to be a greater challenge than the original flag was.
 
-I didn't find anything else hidden in the original flag file so I have a look at the pages source. Initially I didn't find anything that stands out but after looking at the address for the favicon I notice that it is `.crow.ico` when on all the other pages it is only `crow.ico`. I download both files and immediatly notice that the .crow.ico file is a about 1KB larger than the normal one, this must be where the bonus flag is hidden. Binwalk shows us a PNG file and a Zlib compressed data file, Using binwalk to extract the hidden files I get given the Zlib compressed file only. Decompressing this file just gives me a unknown file which is just reported as data by the file command, I can't seem to find anything else in this file.
+I didn't find anything else hidden in the original flag file so I have a look at the pages source. Initially I didn't find anything that stands out but after looking at the address for the favicon I notice that it is `.crow.ico` when on all the other pages it is only `crow.ico`. I download both files and immediatly notice that the .crow.ico file is a about 1KB larger than the normal one, this must be where the bonus flag is hidden. Binwalk shows us a PNG file and a Zlib compressed data file, Using `binwalk -e flag.ico` to extract the hidden files I get given the Zlib compressed file only. Decompressing this file just gives me a unknown file which is just reported as data by the file command, I can't seem to find anything else in this file.
 
 I then decided to compare the normal favicon and the larged one side by side with a hexdump. I notice where the files start to differ and find at address `0x25DE` there is data which is not in the original file at all. There is 1006 bytes of extra data before files match up again. I look up how to extract parts of a file and find using the `dd` command will be best to do it. Using `dd skip=9694 count=1008 if=crow.ico of=out bs=1` I manage to extract the hidden file, I had to use a block size of 1 or else dd was unable to skip to the correct offset. Checking the extracted file tells us that it is a greyscale PNG file, opening it gives us the bonus flag.
 
@@ -180,3 +180,17 @@ I then decided to compare the normal favicon and the larged one side by side wit
 I'm curious why binwalk didn't originally extract the file and only gave me the compressed file so I research a bit more. I find that using binwalk with the `-e` option to extract hidden files only extracts certain filetypes and I have to manually tell it to extract a png file. Using `binwalk --dd='png' crow.ico` I get binwalk to extract the image and give us the bonus flag. I missed this the first time I used binwalk as I was presuming the PNG file that it showed was the original favicon image since it didn't extract it by default. Next time I will know to tell binwalk to extract all files and that just using the `-e` option does not do that.
 
 ![Fourth Bonus Flag extracted with binwalk](bonus4.PNG)
+
+## Challenge 5
+
+>You don't know who stole your flag, but you have a list of suspects. First guy on the list is Fitzgerald Kemp.
+>Search for a name:
+
+We are given a search box where we can lookup a user and are given their age, country and PID. Searching for the given name `Fitzgerald Kemp` we are given their details. The details given to us don't seem to be much use, but this does look like its just a database lookup so perhaps we can use some SQL Injection to dump the whole database. SQLi works and using `' OR '1'='1` and clicking search returns the whole database to us.
+
+![Fifth flag SQLi](sqli.PNG)
+
+There is a lot of entries returned so I just use my browsers find capability to search for the string flag and we find it down in a user called Chancellor Fry's PID.
+
+![Fifth flag](flag5.PNG)
+
