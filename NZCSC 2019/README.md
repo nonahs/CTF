@@ -194,3 +194,30 @@ There is a lot of entries returned so I just use my browsers find capability to 
 
 ![Fifth flag](flag5.PNG)
 
+## Challenge 6
+
+>For this challenge we are given a virtual machine image to use.
+
+Opening the image with VirtualBox the name of the systems is `NZCSC R0C6 TCL`. When the image is run I find out that it is a tiny core linux distribution with only the CLI included. Checking the files on the sysems with `ls` we are only shown 1 file `validate`. Running this file asks to enter a flag for validation. I have no idea what the flag is so I enter some random text and after validating for a few seconds the program returns failed!
+
+![Validation failed](failed.PNG)
+
+I try run binwalk, but it is not included in the provided system and we are unable to install new packages either. I decide to check what strings there are in the program. I get a large list so I pipe the output to grep so it can look for the flag `strings validate | grep flag`. I get a list of about 80 different falgs so I redirect the output from grep to a file `strings validate | grep flag > flags.txt`. I then remove any text that is not in our correct flag format so we are only left with a text file of 12 character flags. Once this is done I write a quick script to go through the file line by line and redirect the output as input to the validate program. After a few minutes all the keys have been tried and none of them were correct so I'll need to take a different approach.
+
+Next I check if the system has a debugger available and I find GDB is there. I open validate with gdb and check what variables are defined. GDB reports that the program has 12 defined variables, 10 of which are string arrays and one is an array of flags. Viewing the variables I get a list of the strings I saw when I ran the program but I notice a few new strings including one that it a GET request to challenge server. 
+
+![GDB Variables](strings.PNG)
+
+I enter the URL into a browser `https://nzcsc.org.nz/competition/2019/R0/6/challenge/server.php?key=72a145aff16bb741310d7c953070807b` and when the page loads it gives us the bonus flag `bonus:b55d54a59457`. Looks like I stumbled across the bonus key before I found the main key for the challenge. I decide to try running the validate program and giving it this bonus key, however that still gives me the failed output. I decide the best option is to check what functions the program runs and set a breakpoint at each one to see what local variables are set. The program has 6 functions named `FUNC0` to `FUNC5`. I notice that FUNC4 is the only one that accepts any paramaters and returns a value, it actually accepts a character array and returns an int so I guess this might be the function that compares the key we give the program.
+
+![GDB Functions](functions.PNG)
+
+Setting a breakpoint at FUNC4 does not seem to help so I decided to step through the program and when it jumps into FUNC2 we get some local variables, one is called flag and has the data `flag = 0x804c400 <flags+576> "flag:51bd3c2fdb67"`. 
+
+~[GDB FUNC2](func2.PNG)
+
+This looks like its our key, I enter it and it is accepted. I decide to run the validate program with the correct flag to see what happens this time. Initally it doesn't work, then I try prefix it with flag: and we are able to validate the flag correctly.
+
+![Validating flag](validating.PNG)
+
+ However the program tries to connect to an address and fails, I'm not really sure what it is meant to do but it doesn't matter since we now have the flag and the bonus flag anyway. I guess my script that checked every flag we found earlier wouldn't have worked then since I removed the flag: prefixs. I'm still curious if the flag was in our original list that we extracted from the program so I go back and check again but don't find it. I then check the flags array with gdb and find it is in there, just the flag is written backwards so thats why it didn't show up when we searched the programs strings for flag. I then search the strings again, this time for galf and sure enough our flag is there in reverse. Next time I'll remember to search to both flag and galf.
