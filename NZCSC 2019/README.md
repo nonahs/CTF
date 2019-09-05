@@ -179,7 +179,7 @@ I then decided to compare the normal favicon and the larged one side by side wit
 
 I'm curious why binwalk didn't originally extract the file and only gave me the compressed file so I research a bit more. I find that using binwalk with the `-e` option to extract hidden files only extracts certain filetypes and I have to manually tell it to extract a png file. Using `binwalk --dd='png' crow.ico` I get binwalk to extract the image and give us the bonus flag. I missed this the first time I used binwalk as I was presuming the PNG file that it showed was the original favicon image since it didn't extract it by default. Next time I will know to tell binwalk to extract all files and that just using the `-e` option does not do that.
 
-![Fourth Bonus Flag extracted with binwalk](bonus4.PNG)
+![Fourth Bonus Flag extracted with binwalk](images/bonus4.PNG)
 
 ## Challenge 5
 
